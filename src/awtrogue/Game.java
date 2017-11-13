@@ -9,14 +9,15 @@ package awtrogue;
  *
  * @author ZephRay
  */
-public class Game {
+public abstract class Game {
     protected final Screen screen;
     protected final Keyboard keyboard;
+    protected final Renderer renderer;
     
     private final Thread gameThread;
     private final GameLoop gameLoop;
     
-    private int MaxTps = 20, maxFps = 60;
+    private int maxTps = 20, maxFps = 60;
     private volatile boolean running = false;
     
     public Game(int width, int height) {
@@ -25,6 +26,7 @@ public class Game {
         
         screen = new Screen(width, height);
         keyboard = new Keyboard(screen);
+        renderer = new Renderer(screen);
     }
     
     public final void run() {
@@ -51,7 +53,55 @@ public class Game {
         }
     }
     
+    public void setMaxFps(int MaxFps) {
+        this.maxFps = (maxFps > 0) ? maxFps : 60;
+    }
+    
+    public void setMaxTps(int maxTps) {
+        this.maxTps = (maxTps > 0) ? maxTps : 120;
+    }
+    
+    public Screen getScreen() {
+        return screen;
+    }
+    
+    public Keyboard getKeyboard() {
+        return keyboard;
+    }
+    
+    public boolean isRunning() {
+        return running;
+    }
+       
     private class GameLoop implements Runnable {
+        private final double NS_PER_SEC = 1000000000;
         
+        @Override
+        public void run() {
+            double previous = System.nanoTime();
+            double start = System.nanoTime();
+            double lag = 0.0;
+            
+            while (running) {
+                double nsPerTick = NS_PER_SEC / maxTps;
+                double nsPerFrame = NS_PER_SEC / maxFps;
+                
+                double current = System.nanoTime();
+                double elapsed = current - previous;
+                
+                previous = current;
+                lag += elapsed;
+                
+                while (lag >= nsPerTick) {
+                    tick();
+                    lag -= nsPerTick;
+                }
+                
+                while (current - start >= nsPerFrame) {
+                    render(lag / nsPerTick);
+                    start = System.nanoTime();
+                }
+            }
+        }
     }
 }
