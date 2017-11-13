@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package awtrogue;
 
 import java.awt.Canvas;
@@ -14,16 +9,18 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 /**
- *
- * @author ZephRay
+ * Screen
+ * @author Wenting Zhang Assignment 5
  */
-public class Screen {
+public class Screen 
+{
     private final Canvas canvas;
     
     private final int width, height;
     private final BufferedImage buffer;
     
-    public Screen(int width, int height) {
+    public Screen(int width, int height) 
+    {
         this.width = width;
         this.height = height;
         
@@ -36,10 +33,13 @@ public class Screen {
         canvas.setFocusable(true);
     }
     
-    public void swapBuffer() {
-        if (canvas.isDisplayable()) {
+    public void swapBuffer() 
+    {
+        if (canvas.isDisplayable()) 
+        {
             BufferStrategy bufferStrategy = canvas.getBufferStrategy();
-            if (bufferStrategy == null) {
+            if (bufferStrategy == null) 
+            {
                 canvas.createBufferStrategy(2);
                 return;
             }
@@ -51,19 +51,23 @@ public class Screen {
         }
     }
     
-    protected BufferedImage getBuffer() {
+    protected BufferedImage getBuffer() 
+    {
         return buffer;
     }
     
-    public Canvas getCanvas() {
+    public Canvas getCanvas() 
+    {
         return canvas;
     }
     
-    public int getWidth() {
+    public int getWidth() 
+    {
         return width;
     }
     
-    public int getHeight() {
+    public int getHeight() 
+    {
         return height;
     }
 }

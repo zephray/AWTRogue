@@ -1,16 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package awtrogue;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 /**
- *
- * @author ZephRay
+ * Keyboard
+ * @author Wenting Zhang Assignment 5
  */
 public class Keyboard 
 {
@@ -18,7 +13,8 @@ public class Keyboard
     
     private boolean[] downKeys = new boolean[NUM_KEYS];
     
-    public Keyboard(Screen screen) {
+    public Keyboard(Screen screen)
+    {
         KeyboardEventListener keyboardEventListener = new KeyboardEventListener();
         screen.getCanvas().addKeyListener(keyboardEventListener);
     }
@@ -28,7 +24,13 @@ public class Keyboard
         return downKeys[keyCode];
     }
     
-    private class KeyboardEventListener implements KeyListener {
+    public void clearKeyDown(int keyCode)
+    {
+        downKeys[keyCode] = false;
+    }
+    
+    private class KeyboardEventListener implements KeyListener 
+    {
         @Override
         public void keyTyped(KeyEvent e)
         {
