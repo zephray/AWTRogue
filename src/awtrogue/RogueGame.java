@@ -28,7 +28,7 @@ public class RogueGame extends Game
     private ArrayList<Unit> deadEnemies;
     private ArrayList<Portal> portals;
     private int portalsPassed;
-    private GameScreen gameScreen;
+    private GameStatus gameStatus;
     private Boolean isAnimating;
     private Random rand;
     //private static ArrayList<Room> rooms;
@@ -56,7 +56,7 @@ public class RogueGame extends Game
             e.printStackTrace();
         }
         
-        gameScreen = GameScreen.TITLE;
+        gameStatus = GameStatus.TITLE;
         player = new Unit(new Point(0,0), 
                 Constants.PLAYER_MAX_HP, Constants.PLAYER_INITIAL_ATK);
         enemies = new ArrayList<Unit>();
@@ -97,12 +97,12 @@ public class RogueGame extends Game
                 }
             }
         }
-        switch (gameScreen)
+        switch (gameStatus)
         {
             case TITLE:
                 if (getKeyboard().isKeyDown(KeyEvent.VK_ENTER))
                 {
-                    gameScreen = GameScreen.GAME;
+                    gameStatus = GameStatus.GAME;
                     getKeyboard().clearKeyDown(KeyEvent.VK_ENTER);
                 }
                 break;
@@ -110,7 +110,7 @@ public class RogueGame extends Game
             case LOSE:
                 if (getKeyboard().isKeyDown(KeyEvent.VK_ENTER))
                 {
-                    gameScreen = GameScreen.TITLE;
+                    gameStatus = GameStatus.TITLE;
                     getKeyboard().clearKeyDown(KeyEvent.VK_ENTER);
                 }
             case GAME:
@@ -177,7 +177,7 @@ public class RogueGame extends Game
     public void render(double interval)
     {
         renderer.clear();
-        switch (gameScreen)
+        switch (gameStatus)
         {
             case TITLE:
                 renderer.draw(0,0, titleImage);
@@ -223,7 +223,7 @@ public class RogueGame extends Game
         {
             Point portalPosition = portal.tile;
             renderer.draw(portalPosition.x - offset.x, 
-                portalPosition.y -offset.y,
+                portalPosition.y - offset.y,
                 spriteSheet.getSprite(0, 
                         Constants.PORTAL_TEXTURE_Y, 
                         Constants.TILE_SIZE,  Constants.TILE_SIZE));
