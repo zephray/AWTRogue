@@ -6,17 +6,16 @@
 package awtrogue;
 
 import java.awt.Point;
-
 /**
  *
  * @author zephray
  */
-public class Tile {
-    public Point position;
-    public int id;
+public class Room {
+    public Point begin;
+    public Point end;
     
-    public Tile(Point position, int id) {
-        this.position = position;
-        this.id = id;
+    public Room(Point begin, Point end) {
+        this.begin = begin;
+        this.end = end;
     }
 }

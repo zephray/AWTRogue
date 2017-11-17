@@ -25,7 +25,8 @@ public class AWTRogue
         window.setLocationRelativeTo(null);
         window.setVisible(true);
         
-        game.run();
+        game.run(); 
+        //game.init();//Use as unit test
     
     }
     

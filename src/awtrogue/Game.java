@@ -13,7 +13,7 @@ public abstract class Game
     private final Thread gameThread;
     private final GameLoop gameLoop;
     
-    private int maxTps = 20, maxFps = 60;
+    protected int maxTps = 20, maxFps = 60;
     private volatile boolean running = false;
     
     public Game(int width, int height)
@@ -60,7 +60,7 @@ public abstract class Game
     
     public void setMaxTps(int maxTps)
     {
-        this.maxTps = (maxTps > 0) ? maxTps : 120;
+        this.maxTps = (maxTps > 0) ? maxTps : 60;
     }
     
     public Screen getScreen()
@@ -88,6 +88,9 @@ public abstract class Game
             double previous = System.nanoTime();
             double start = System.nanoTime();
             double lag = 0.0;
+            double timing = 0.0;
+            int frameCount = 0;
+            int tickCount = 0;
             
             while (running)
             {
@@ -99,17 +102,27 @@ public abstract class Game
                 
                 previous = current;
                 lag += elapsed;
+                timing += elapsed;
                 
                 while (lag >= nsPerTick)
                 {
                     tick();
                     lag -= nsPerTick;
+                    tickCount ++;
                 }
                 
-                while (current - start >= nsPerFrame)
+                if (current - start >= nsPerFrame)
                 {
-                    render(lag / nsPerTick);
                     start = System.nanoTime();
+                    render(lag / nsPerTick);
+                    frameCount ++;
+                }
+                
+                if (timing >= NS_PER_SEC) {
+                    timing = 0;
+                    System.out.println("fps = " + frameCount + "(" + maxFps + ")" + ", tps = " + tickCount + "(" + maxTps + ")");
+                    frameCount = 0;
+                    tickCount = 0;
                 }
             }
         }

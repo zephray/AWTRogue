@@ -4,6 +4,7 @@ import java.util.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.Point;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -28,10 +29,14 @@ public class RogueGame extends Game
     private ArrayList<Unit> deadEnemies;
     private ArrayList<Portal> portals;
     private int portalsPassed;
+    private int winningPortal;
     private GameStatus gameStatus;
     private Boolean isAnimating;
-    private Random rand;
-    //private static ArrayList<Room> rooms;
+    private Random rng;
+    private Map map;
+    private BSP bsp;
+    private ArrayList<Room> rooms;
+    private ArrayList<Room> bridges;
     //pressed keys
     //rng
     //winning portal
@@ -40,8 +45,8 @@ public class RogueGame extends Game
     {
         super(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         
-        setMaxFps(60);
-        setMaxTps(60);
+        maxFps = 30;
+        maxTps = 60;
         
         try
         {
@@ -50,23 +55,13 @@ public class RogueGame extends Game
             winImage = ImageIO.read(new File("res/win.png"));
             backgroundImage = ImageIO.read(new File("res/background.png"));
             foregroundImage = ImageIO.read(new File("res/foreground.png"));
-            spriteSheet = new SpriteSheet(40, 40, "res/sprite.png");
+            spriteSheet = new SpriteSheet(Constants.TILE_SIZE, Constants.TILE_SIZE, "res/sprite.png");
         } catch (IOException e)
         {
             e.printStackTrace();
         }
         
         gameStatus = GameStatus.TITLE;
-        player = new Unit(new Point(0,0), 
-                Constants.PLAYER_MAX_HP, Constants.PLAYER_INITIAL_ATK);
-        enemies = new ArrayList<Unit>();
-        deadEnemies = new ArrayList<Unit>();
-        portals = new ArrayList<Portal>();
-        //rooms = new ArrayList<Room>();
-        isAnimating = false;
-        rand = new Random();
-        
-        enemies.add(new Unit(new Point(5,5), 20, 5));
     }
     
     @Override
@@ -78,31 +73,13 @@ public class RogueGame extends Game
     @Override
     public void tick()
     {
-        if (isAnimating)
-        {
-            isAnimating = false;
-            if (player.isAnimationPlaying()) 
-            {
-                isAnimating = true;
-                player.tick();
-            } else
-            {
-                for (Unit enemy : enemies)
-                {
-                    if (enemy.isAnimationPlaying())
-                    {
-                        isAnimating = true;
-                        enemy.tick();
-                    }
-                }
-            }
-        }
         switch (gameStatus)
         {
             case TITLE:
                 if (getKeyboard().isKeyDown(KeyEvent.VK_ENTER))
                 {
                     gameStatus = GameStatus.GAME;
+                    generateLevel();
                     getKeyboard().clearKeyDown(KeyEvent.VK_ENTER);
                 }
                 break;
@@ -114,6 +91,25 @@ public class RogueGame extends Game
                     getKeyboard().clearKeyDown(KeyEvent.VK_ENTER);
                 }
             case GAME:
+                if (isAnimating)
+                {
+                    isAnimating = false;
+                    if (player.isAnimationPlaying()) 
+                    {
+                        isAnimating = true;
+                        player.tick();
+                    } else
+                    {
+                        for (Unit enemy : enemies)
+                        {
+                            if (enemy.isAnimationPlaying())
+                            {
+                                isAnimating = true;
+                                enemy.tick();
+                            }
+                        }
+                    }
+                }
                 if ((getKeyboard().isKeyDown(KeyEvent.VK_UP))|
                     (getKeyboard().isKeyDown(KeyEvent.VK_J)))
                 {
@@ -207,26 +203,33 @@ public class RogueGame extends Game
         offset.x -= (Constants.WINDOW_WIDTH / 2);
         offset.y -= (Constants.WINDOW_HEIGHT / 2);
         
+        //Map
+        ArrayList<Tile> tiles = map.getTiles(0,
+                new Point(offset.x / Constants.TILE_SIZE, offset.y / Constants.TILE_SIZE), 
+                new Point((offset.x + Constants.WINDOW_WIDTH) / Constants.TILE_SIZE,
+                        (offset.y + Constants.WINDOW_HEIGHT) / Constants.TILE_SIZE));
+        for (Tile tile: tiles) {
+            renderer.draw(tile.position.x * Constants.TILE_SIZE - offset.x, 
+                tile.position.y * Constants.TILE_SIZE - offset.y, 
+                spriteSheet.getSprite(tile.id));
+        }
+        
         //Bodies
         for (Unit deadEnemy: deadEnemies)
         {
             Point deadEnemyPosition = deadEnemy.globalPos();
             renderer.draw(deadEnemyPosition.x - offset.x,
                 deadEnemyPosition.y -offset.y,
-                spriteSheet.getSprite(1, 
-                        Constants.ENEMY_TEXURE_Y, 
-                        Constants.TILE_SIZE,  Constants.TILE_SIZE));
+                spriteSheet.getSprite(Constants.SPRITE_DEAD_ENEMY));
         }
         
         //Portals
         for (Portal portal : portals)
         {
             Point portalPosition = portal.tile;
-            renderer.draw(portalPosition.x - offset.x, 
-                portalPosition.y - offset.y,
-                spriteSheet.getSprite(0, 
-                        Constants.PORTAL_TEXTURE_Y, 
-                        Constants.TILE_SIZE,  Constants.TILE_SIZE));
+            renderer.draw(portalPosition.x * Constants.TILE_SIZE - offset.x, 
+                portalPosition.y * Constants.TILE_SIZE - offset.y,
+                spriteSheet.getSprite(Constants.SPRITE_PORTAL));
         }
         
         //Enemy
@@ -234,30 +237,78 @@ public class RogueGame extends Game
         {
             Point enemyPosition = enemy.globalPos();
             renderer.draw(enemyPosition.x - offset.x, enemyPosition.y -offset.y,
-                spriteSheet.getSprite(0, 
-                        Constants.ENEMY_TEXURE_Y, 
-                        Constants.TILE_SIZE,  Constants.TILE_SIZE));
+                spriteSheet.getSprite(Constants.SPRITE_ENEMY));
             renderer.draw(enemyPosition.x - offset.x, enemyPosition.y -offset.y,
-                spriteSheet.getSprite(0, 
-                        Constants.LIGHT_TEXTURE_Y, 
-                        Constants.TILE_SIZE,  Constants.TILE_SIZE));
+                spriteSheet.getSprite(Constants.SPRITE_LIGHT));
         }
         
         //Player
         Point playerPosition = player.globalPos();
         renderer.draw(playerPosition.x - offset.x, playerPosition.y - offset.y,
-            spriteSheet.getSprite(0, 
-                Constants.PLAYER_TEXTURE_Y,
-                Constants.TILE_SIZE,  Constants.TILE_SIZE));
+            spriteSheet.getSprite(Constants.SPRITE_PLAYER_DOWN));
         renderer.draw(playerPosition.x - offset.x, playerPosition.y - offset.y,
-            spriteSheet.getSprite(0, 
-                Constants.LIGHT_TEXTURE_Y, 
-                Constants.TILE_SIZE,  Constants.TILE_SIZE));
+            spriteSheet.getSprite(Constants.SPRITE_LIGHT));
+        
+        //HP and MANA
+        renderer.fillRect(10, 10, player.hp * 5 + 1, 20, Color.RED);
+        renderer.fillRect(10, 40, portalsPassed * 20 + 1, 20, Color.YELLOW);
     }
     
     private void generateLevel()
     {
+        map = new Map();
+        enemies = new ArrayList<>();
+        deadEnemies = new ArrayList<>();
+        portals = new ArrayList<>();
+        isAnimating = false;
+        rng = new Random();
+        bsp = new BSP(new Point(0, 0), new Point(Constants.MAP_WIDTH, Constants.MAP_HEIGHT), 0, rng);
+        bsp.generateChild(Constants.BSP_DEPTH);
+        bsp.generateRoom();
+        rooms = bsp.getRoom();
+        int startRoom = rng.nextInt(rooms.size());
+        int startX = rng.nextInt(rooms.get(startRoom).end.x - rooms.get(startRoom).begin.x) 
+                + rooms.get(startRoom).begin.x;
+        int startY = rng.nextInt(rooms.get(startRoom).end.y - rooms.get(startRoom).begin.y) 
+                + rooms.get(startRoom).begin.y;
+        player = new Unit(new Point(startX, startY), 
+                Constants.PLAYER_MAX_HP, Constants.PLAYER_INITIAL_ATK);
         
+        for (Room room: rooms) {
+            Point enemyPosition = new Point(
+                rng.nextInt(room.end.x - room.begin.x) + room.begin.x,
+                rng.nextInt(room.end.y - room.begin.y) + room.begin.y);
+            enemies.add(new Unit(enemyPosition, Constants.ENEMY_MAX_HP, Constants.ENEMY_INITIAL_ATK));
+            Point portalPosition = new Point(
+                rng.nextInt(room.end.x - room.begin.x) + room.begin.x,
+                rng.nextInt(room.end.y - room.begin.y) + room.begin.y);
+            portals.add(new Portal(portalPosition));
+            for (int x = room.begin.x; x < room.end.x; x++) {
+                for (int y = room.begin.y; y < room.end.y; y++) {
+                    map.addTile(0, new Tile(new Point(x, y), Constants.TILE_FLOOR_BASE + rng.nextInt(Constants.TILE_FLOOR_COUNT)));
+                }
+            }
+        }
+        
+        bridges = bsp.getBridge();
+        for (Room bridge: bridges) {
+            for (int x = bridge.begin.x; x < bridge.end.x; x++) {
+                for (int y = bridge.begin.y; y < bridge.end.y; y++) {
+                    map.addTile(0, new Tile(new Point(x, y), Constants.TILE_FLOOR_BASE + rng.nextInt(Constants.TILE_FLOOR_COUNT)));
+                }
+            }
+        }
+        
+        for (Portal portal: portals) {
+            int targetRoom = rng.nextInt(rooms.size());
+            portal.destination = new Point(
+                rng.nextInt(rooms.get(targetRoom).end.x - rooms.get(targetRoom).begin.x) 
+                + rooms.get(targetRoom).begin.x,
+                rng.nextInt(rooms.get(targetRoom).end.y - rooms.get(targetRoom).begin.y) 
+                + rooms.get(targetRoom).begin.y);
+        }
+        
+        winningPortal = rng.nextInt(portals.size());
     }
     
     private void makeMove(Point delta)
@@ -272,33 +323,57 @@ public class RogueGame extends Game
         }
         Point newPos = 
                 new Point(player.tile.x + delta.x, player.tile.y + delta.y);
+        if (map.getTileAt(0, newPos) == null) return;
         isAnimating = true;
         
         //Collision check
-        int enemyCollideIndicator = -1;
+        int enemyCollideId = -1;
         for (Unit enemy: enemies)
         {
             if ((newPos.x == enemy.tile.x)&&(newPos.y == enemy.tile.y))
             {
-                enemyCollideIndicator = enemies.indexOf(enemy);
+                enemyCollideId = enemies.indexOf(enemy);
             }
         }
-        if (enemyCollideIndicator >= 0)
+        if (enemyCollideId >= 0)
         {
             player.attack(delta, 0);
-            if (rand.nextInt(Constants.MISS_RATE) != 0)
+            if (rng.nextInt(Constants.MISS_RATE) != 0)
             {
-                enemies.get(enemyCollideIndicator).takesDamage(player.damage);
-                if (!(enemies.get(enemyCollideIndicator).isAlive()))
+                enemies.get(enemyCollideId).takesDamage(player.damage);
+                if (!(enemies.get(enemyCollideId).isAlive()))
                 {
-                    deadEnemies.add(enemies.remove(enemyCollideIndicator));
+                    deadEnemies.add(enemies.remove(enemyCollideId));
                 }
             }
         } else
         {
-            //int enterPortalIndicator = -1;
+            int portalEnterId = -1;
+            for (Portal portal: portals) {
+                if ((newPos.x == portal.tile.x)&&(newPos.y == portal.tile.y))
+                {
+                    portalEnterId = portals.indexOf(portal);
+                }
+            }
+            if (portalEnterId >= 0) {
+                if (portalEnterId == winningPortal) {
+                    gameStatus = GameStatus.WIN;
+                } else {
+                    delta.x = portals.get(portalEnterId).destination.x - player.tile.x;
+                    delta.y = portals.get(portalEnterId).destination.y - player.tile.y;
+                    portals.remove(portalEnterId);
+                    portalsPassed += 1;
+                    if (portalsPassed == Constants.PLAYER_MAX_MANA) {
+                        player.hp = Constants.PLAYER_MAX_HP;
+                        portalsPassed = 0;
+                    }
+                }
+            }
             player.move(delta, 0);
         }
+        
+        //Machine turn
+        
         
     }
 }
