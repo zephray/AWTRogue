@@ -53,7 +53,6 @@ public class RogueGame extends Game
             titleImage = ImageIO.read(new File("res/title.png"));
             loseImage = ImageIO.read(new File("res/lose.png"));
             winImage = ImageIO.read(new File("res/win.png"));
-            backgroundImage = ImageIO.read(new File("res/background.png"));
             foregroundImage = ImageIO.read(new File("res/foreground.png"));
             spriteSheet = new SpriteSheet(Constants.TILE_SIZE, Constants.TILE_SIZE, "res/sprite.png");
         } catch (IOException e)
@@ -245,7 +244,9 @@ public class RogueGame extends Game
         //Player
         Point playerPosition = player.globalPos();
         renderer.draw(playerPosition.x - offset.x, playerPosition.y - offset.y,
-            spriteSheet.getSprite(Constants.SPRITE_PLAYER_DOWN));
+            spriteSheet.getSprite(player.getDirection() * 4 + ((player.isAnimationPlaying())?(player.getAnimationTick()/4%3):(0))));
+        /*renderer.draw(playerPosition.x - offset.x, playerPosition.y - offset.y,
+            spriteSheet.getSprite(Constants.SPRITE_PLAYER_DOWN));*/
         renderer.draw(playerPosition.x - offset.x, playerPosition.y - offset.y,
             spriteSheet.getSprite(Constants.SPRITE_LIGHT));
         

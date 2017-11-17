@@ -16,6 +16,7 @@ public class Unit
     private Animation animation;
     private int animationTick;
     private int animationDelay;
+    private int lastDirection;
     
     public Unit(Point tile, int hp, int damage) 
     {
@@ -26,6 +27,7 @@ public class Unit
         animation = Animation.IDLE;
         animationTick = 0;
         animationDelay = 0;
+        lastDirection = 0;
     }
     
     public void move(Point delta, int delay) 
@@ -44,6 +46,25 @@ public class Unit
         animation = Animation.ATTACK;
         animationDelay = delay;
         animationTick = Constants.ANIMATION_LENGTH;
+    }
+    
+    public int getAnimationTick()
+    {
+        return animationTick;
+    }
+    
+    public int getDirection()
+    {
+        if (delta.x > 0) {
+            lastDirection = 1;
+        } else if (delta.x < 0) {
+            lastDirection = 2;
+        } else if (delta.y > 0) {
+            lastDirection = 0;
+        } else if (delta.y < 0) {
+            lastDirection = 3;
+        }
+        return lastDirection;
     }
     
     public void takesDamage(int damage) 

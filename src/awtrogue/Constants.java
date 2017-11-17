@@ -35,12 +35,15 @@ public class Constants
     
     public static final int TILE_SIZE = 40;
     
-    public static final int TILE_FLOOR_BASE = 4;
+    public static final int TILE_FLOOR_BASE = 16;
     public static final int TILE_FLOOR_COUNT = 4;
     
     public static final int SPRITE_PLAYER_DOWN = 0;
-    public static final int SPRITE_ENEMY = 8;
-    public static final int SPRITE_DEAD_ENEMY = 9;
-    public static final int SPRITE_LIGHT = 12;
+    public static final int SPRITE_PLAYER_RIGHT = 4;
+    public static final int SPRITE_PLAYER_LEFT = 8;
+    public static final int SPRITE_PLAYER_UP = 12;
+    public static final int SPRITE_ENEMY = 24;
+    public static final int SPRITE_DEAD_ENEMY = 25;
+    public static final int SPRITE_LIGHT = 21;
     public static final int SPRITE_PORTAL = 20;
 }
