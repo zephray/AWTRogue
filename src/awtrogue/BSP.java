@@ -42,31 +42,41 @@ public class BSP {
     public void generateChild(int maximumDepth) {
         //recursive generate
         if (depth < maximumDepth) {
-            int direction = rng.nextInt(2);
-            if (direction == 1) { //divide horizontally
-                int x0 = dimensionBegin.x + MIN_SEG_WIDTH;
-                int x1 = dimensionEnd.x - MIN_SEG_WIDTH;
-                if (x1 > x0) {
-                    int x = rng.nextInt(x1 - x0) + x0;
-                    left = new BSP(new Point(dimensionBegin.x, dimensionBegin.y),
-                        new Point(x, dimensionEnd.y), depth + 1, rng);
-                    left.generateChild(maximumDepth);
-                    right = new BSP(new Point(x, dimensionBegin.y), 
-                        new Point(dimensionEnd.x, dimensionEnd.y), depth + 1, rng);
-                    right.generateChild(maximumDepth);
+            //See what direction is possible
+            int x0 = dimensionBegin.x + MIN_SEG_WIDTH;
+            int x1 = dimensionEnd.x - MIN_SEG_WIDTH;
+            int y0 = dimensionBegin.y + MIN_SEG_HEIGHT;
+            int y1 = dimensionEnd.y - MIN_SEG_HEIGHT;
+            int direction;
+            if (x1 > x0) {
+                if (y1 > y0) {
+                    direction = rng.nextInt(2);
+                } else {
+                    direction = 1;
                 }
             } else {
-                int y0 = dimensionBegin.y + MIN_SEG_HEIGHT;
-                int y1 = dimensionEnd.y - MIN_SEG_HEIGHT;
                 if (y1 > y0) {
-                    int y = rng.nextInt(y1 - y0) + y0;
-                    left = new BSP(new Point(dimensionBegin.x, dimensionBegin.y),
-                        new Point(dimensionEnd.x, y), depth + 1, rng);
-                    left.generateChild(maximumDepth);
-                    right = new BSP(new Point(dimensionBegin.x, y), 
-                        new Point(dimensionEnd.x, dimensionEnd.y), depth + 1, rng);
-                    right.generateChild(maximumDepth);
+                    direction = 0;
+                } else {
+                    return;
                 }
+            }
+            if (direction == 1) { //divide horizontally
+                int x = rng.nextInt(x1 - x0) + x0;
+                left = new BSP(new Point(dimensionBegin.x, dimensionBegin.y),
+                    new Point(x, dimensionEnd.y), depth + 1, rng);
+                left.generateChild(maximumDepth);
+                right = new BSP(new Point(x, dimensionBegin.y), 
+                    new Point(dimensionEnd.x, dimensionEnd.y), depth + 1, rng);
+                right.generateChild(maximumDepth);
+            } else {
+                int y = rng.nextInt(y1 - y0) + y0;
+                left = new BSP(new Point(dimensionBegin.x, dimensionBegin.y),
+                    new Point(dimensionEnd.x, y), depth + 1, rng);
+                left.generateChild(maximumDepth);
+                right = new BSP(new Point(dimensionBegin.x, y), 
+                    new Point(dimensionEnd.x, dimensionEnd.y), depth + 1, rng);
+                right.generateChild(maximumDepth);
             }
         } 
     }
