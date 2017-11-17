@@ -15,8 +15,8 @@ import java.util.ArrayList;
  */
 public class BSP {
     //Binary Space Partitioning
-    public final int MIN_SEG_WIDTH = 14;
-    public final int MIN_SEG_HEIGHT = 14;
+    public final int MIN_SEG_WIDTH = 10;
+    public final int MIN_SEG_HEIGHT = 10;
     
     //Segmentation Dimension
     public Point dimensionBegin;
@@ -76,10 +76,10 @@ public class BSP {
             left.generateRoom();
             right.generateRoom();
         } else {
-            int x0 = dimensionBegin.x + 1 + rng.nextInt(5);
-            int x1 = dimensionEnd.x - rng.nextInt(6);
-            int y0 = dimensionBegin.y + 1 + rng.nextInt(5);
-            int y1 = dimensionEnd.y - rng.nextInt(6);
+            int x0 = dimensionBegin.x + 1 + rng.nextInt(3);
+            int x1 = dimensionEnd.x - rng.nextInt(4);
+            int y0 = dimensionBegin.y + 1 + rng.nextInt(3);
+            int y1 = dimensionEnd.y - rng.nextInt(4);
             room = new Room(new Point(x0, y0), new Point(x1, y1));
         }
     }
@@ -132,14 +132,16 @@ public class BSP {
                             int yb0 = (roomLeft.begin.y > roomRight.begin.y)?(roomRight.end.y):(roomLeft.end.y);
                             int yb1 = (roomLeft.begin.y > roomRight.begin.y)?(roomLeft.begin.y):(roomRight.begin.y);
                             bridges.add(new Room(new Point(xb, yb0), new Point(xb + 2, yb1)));
+                            break Traverse;
                         } else if ((xl0 >= xr0)&&(xl0 <= xr1)) {
                             System.out.println("Match found");
                             xb = xl0 + rng.nextInt(xr1 - xl0); 
                             int yb0 = (roomLeft.begin.y > roomRight.begin.y)?(roomRight.end.y):(roomLeft.end.y);
                             int yb1 = (roomLeft.begin.y > roomRight.begin.y)?(roomLeft.begin.y):(roomRight.begin.y);
                             bridges.add(new Room(new Point(xb, yb0), new Point(xb + 2, yb1)));
+                            break Traverse;
                         }
-                        break Traverse;
+                        
                     }
                 }
             } else {
@@ -161,14 +163,15 @@ public class BSP {
                             int xb0 = (roomLeft.begin.x > roomRight.begin.x)?(roomRight.end.x):(roomLeft.end.x);
                             int xb1 = (roomLeft.begin.x > roomRight.begin.x)?(roomLeft.begin.x):(roomRight.begin.x);
                             bridges.add(new Room(new Point(xb0, yb), new Point(xb1, yb + 2)));
+                            break Traverse;
                         } else if ((yl0 >= yr0)&&(yl0 <= yr1)) {
                             System.out.println("Match found");
                             yb = yl0 + rng.nextInt(yr1 - yl0); 
                             int xb0 = (roomLeft.begin.x > roomRight.begin.x)?(roomRight.end.x):(roomLeft.end.x);
                             int xb1 = (roomLeft.begin.x > roomRight.begin.x)?(roomLeft.begin.x):(roomRight.begin.x);
                             bridges.add(new Room(new Point(xb0, yb), new Point(xb1, yb + 2)));
+                            break Traverse;
                         }
-                        break Traverse;
                     }
                 }
             }

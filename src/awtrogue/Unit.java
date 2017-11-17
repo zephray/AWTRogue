@@ -9,7 +9,7 @@ import java.awt.Point;
 
 public class Unit 
 {
-    public Point tile;
+    public Point position;
     public int hp;
     public int damage;
     private Point delta;
@@ -18,9 +18,9 @@ public class Unit
     private int animationDelay;
     private int lastDirection;
     
-    public Unit(Point tile, int hp, int damage) 
+    public Unit(Point position, int hp, int damage) 
     {
-        this.tile = tile;
+        this.position = position;
         this.hp = hp;
         this.damage = damage;
         delta = new Point(0, 0);
@@ -33,8 +33,8 @@ public class Unit
     public void move(Point delta, int delay) 
     {
         this.delta = delta;
-        this.tile.x += delta.x;
-        this.tile.y += delta.y;
+        this.position.x += delta.x;
+        this.position.y += delta.y;
         animation = Animation.MOVE;
         animationDelay = delay;
         animationTick = Constants.ANIMATION_LENGTH;
@@ -75,8 +75,8 @@ public class Unit
     public Point globalPos() 
     {
         Point temp = new Point(
-                this.tile.x * Constants.TILE_SIZE, 
-                this.tile.y * Constants.TILE_SIZE);
+                this.position.x * Constants.TILE_SIZE, 
+                this.position.y * Constants.TILE_SIZE);
         double coefficient = 0;
         switch (animation) 
         {

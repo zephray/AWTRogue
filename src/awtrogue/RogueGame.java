@@ -225,7 +225,7 @@ public class RogueGame extends Game
         //Portals
         for (Portal portal : portals)
         {
-            Point portalPosition = portal.tile;
+            Point portalPosition = portal.position;
             renderer.draw(portalPosition.x * Constants.TILE_SIZE - offset.x, 
                 portalPosition.y * Constants.TILE_SIZE - offset.y,
                 spriteSheet.getSprite(Constants.SPRITE_PORTAL));
@@ -300,6 +300,7 @@ public class RogueGame extends Game
             }
         }
         
+        int portalId = 0;
         for (Portal portal: portals) {
             int targetRoom = rng.nextInt(rooms.size());
             portal.destination = new Point(
@@ -307,9 +308,18 @@ public class RogueGame extends Game
                 + rooms.get(targetRoom).begin.x,
                 rng.nextInt(rooms.get(targetRoom).end.y - rooms.get(targetRoom).begin.y) 
                 + rooms.get(targetRoom).begin.y);
+            portal.id = portalId ++;
         }
         
         winningPortal = rng.nextInt(portals.size());
+
+        System.out.println("Room count = " + rooms.size());
+        System.out.println("Winning portal = " + winningPortal);
+    }
+    
+    private Point addPoints(Point a, Point b)
+    {
+        return new Point(a.x + b.x, a.y + b.y);
     }
     
     private void makeMove(Point delta)
@@ -323,7 +333,7 @@ public class RogueGame extends Game
             }
         }
         Point newPos = 
-                new Point(player.tile.x + delta.x, player.tile.y + delta.y);
+                new Point(player.position.x + delta.x, player.position.y + delta.y);
         if (map.getTileAt(0, newPos) == null) return;
         isAnimating = true;
         
@@ -331,7 +341,7 @@ public class RogueGame extends Game
         int enemyCollideId = -1;
         for (Unit enemy: enemies)
         {
-            if ((newPos.x == enemy.tile.x)&&(newPos.y == enemy.tile.y))
+            if ((newPos.x == enemy.position.x)&&(newPos.y == enemy.position.y))
             {
                 enemyCollideId = enemies.indexOf(enemy);
             }
@@ -351,17 +361,17 @@ public class RogueGame extends Game
         {
             int portalEnterId = -1;
             for (Portal portal: portals) {
-                if ((newPos.x == portal.tile.x)&&(newPos.y == portal.tile.y))
+                if ((newPos.x == portal.position.x)&&(newPos.y == portal.position.y))
                 {
                     portalEnterId = portals.indexOf(portal);
                 }
             }
             if (portalEnterId >= 0) {
-                if (portalEnterId == winningPortal) {
+                if (portals.get(portalEnterId).id == winningPortal) {
                     gameStatus = GameStatus.WIN;
                 } else {
-                    delta.x = portals.get(portalEnterId).destination.x - player.tile.x;
-                    delta.y = portals.get(portalEnterId).destination.y - player.tile.y;
+                    delta.x = portals.get(portalEnterId).destination.x - player.position.x;
+                    delta.y = portals.get(portalEnterId).destination.y - player.position.y;
                     portals.remove(portalEnterId);
                     portalsPassed += 1;
                     if (portalsPassed == Constants.PLAYER_MAX_MANA) {
@@ -374,7 +384,30 @@ public class RogueGame extends Game
         }
         
         //Machine turn
-        
+        for (Unit enemy: enemies) {
+            Point newEnemyDelta = new Point();
+            if (enemy.position.x < player.position.x) newEnemyDelta.x = 1;
+            else if (enemy.position.x > player.position.x) newEnemyDelta.x = -1;
+            else newEnemyDelta.x = 0;
+            if (enemy.position.y < player.position.y) newEnemyDelta.y = 1;
+            else if (enemy.position.y > player.position.y) newEnemyDelta.y = -1;
+            else newEnemyDelta.y = 0;
+            if (map.getTileAt(0, addPoints(enemy.position, newEnemyDelta)) == null) {
+                if (map.getTileAt(0, addPoints(enemy.position, new Point(newEnemyDelta.x, 0))) != null) newEnemyDelta.y = 0; else
+                if (map.getTileAt(0, addPoints(enemy.position, new Point(0, newEnemyDelta.y))) != null) newEnemyDelta.x = 0; else
+                    continue;
+            } 
+            if (((newEnemyDelta.x + enemy.position.x) == player.position.x) && 
+                ((newEnemyDelta.y + enemy.position.y) == player.position.y)) {
+                enemy.attack(newEnemyDelta, 0);
+                player.takesDamage(enemy.damage);
+                if (!player.isAlive()) {
+                    gameStatus = GameStatus.LOSE;
+                }
+            } else {
+                enemy.move(newEnemyDelta, 0);
+            }
+        }
         
     }
 }

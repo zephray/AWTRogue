@@ -8,12 +8,13 @@ import java.awt.Point;
  */
 public class Portal
 {
-    public Point tile;
+    public Point position;
     public Point destination;
+    public int id;
     
-    public Portal(Point tile)
+    public Portal(Point position)
     {
-        this.tile = tile;
+        this.position = position;
     }
     
     public void connect(Point destination)
