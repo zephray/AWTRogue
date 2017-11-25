@@ -3,10 +3,23 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/awtrogue/Unit.java</file>
-            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/awtrogue/Game.java</file>
-            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/awtrogue/Constants.java</file>
-            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/awtrogue/RogueGame.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Animation.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Keyboard.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Constants.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Game.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Portal.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/SpriteSheet.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Unit.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Map.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/GameStatus.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Tile.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/BSP.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/AWTRogue.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Renderer.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/RogueGame.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Chunk.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Layer.java</file>
+            <file>file:/C:/Users/ZephRay/Documents/GitHub/AWTRogue/src/Screen.java</file>
         </group>
     </open-files>
 </project-private>
